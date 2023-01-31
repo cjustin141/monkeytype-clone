@@ -1,5 +1,5 @@
-import React from 'react'
-import Typespace from '../components/Typespace'
+import React from 'react';
+import Typespace from '../components/Typespace';
 
 export default function Home() {
     return (
@@ -10,5 +10,5 @@ export default function Home() {
             </div>
 
         </> 
-    )
+    );
 }

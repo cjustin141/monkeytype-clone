@@ -1,4 +1,5 @@
-import React from "react"
+import React from "react";
+import { useState } from "react";
 
 export default function Typespace() {
     const commonWords =  [ 'the' , 'at' , 'there' , 'some' , 'my'
@@ -20,9 +21,28 @@ export default function Typespace() {
                     , 'with' , 'when' , 'then' , 'no' , 'come'
                     , 'his' , 'your' , 'them' , 'way' , 'made'
                     , 'they' , 'can', 'these' , 'could' , 'may'
-                    , 'I' , 'said' , 'so' , 'people' , 'part' ]
-                    
+                    , 'I' , 'said' , 'so' , 'people' , 'part' ];
+
+    const wordCount = commonWords.length;
+
+    const [prompt, setPrompt] = useState('');
+
+    const generateRandomPrompt = (length) => {
+        setPrompt('');
+        let randomPrompt = '';
+    
+        for (let i = 0; i < length; i++) {
+            const randomIdx = Math.floor(Math.random() * wordCount);
+            randomPrompt += commonWords[randomIdx] + ' ';
+        }
+        setPrompt(randomPrompt.trim());
+        
+    };
+
     return (
-        <textarea className="">wassup</textarea>
-    )
+        <>
+            <button onClick={() => generateRandomPrompt(10)}>generate</button>
+            <textarea className="w-[400px]" value={prompt} readOnly></textarea>
+        </>
+    );
 }
