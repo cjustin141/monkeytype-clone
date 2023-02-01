@@ -1,5 +1,5 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function Typespace() {
     const commonWords =  [ 'the' , 'at' , 'there' , 'some' , 'my'
@@ -26,9 +26,15 @@ export default function Typespace() {
     const wordCount = commonWords.length;
 
     const [prompt, setPrompt] = useState('');
+    const [input, setInput] = useState('');
+
+    const inputRef = useRef(null)
+
+    useEffect(() => {
+        generateRandomPrompt(10);
+    }, []);
 
     const generateRandomPrompt = (length) => {
-        setPrompt('');
         let randomPrompt = '';
     
         for (let i = 0; i < length; i++) {
@@ -36,13 +42,33 @@ export default function Typespace() {
             randomPrompt += commonWords[randomIdx] + ' ';
         }
         setPrompt(randomPrompt.trim());
-        
+    };
+
+    const handleReset = () => {
+        setPrompt('');
+        setInput('');
+        generateRandomPrompt(10);
+        inputRef.current.focus()
+    };
+
+    const handleChange = e => {
+        console.log(e.target.value)
+        setInput(e.target.value)
     };
 
     return (
         <>
-            <button onClick={() => generateRandomPrompt(10)}>generate</button>
-            <textarea className="w-[400px]" value={prompt} readOnly></textarea>
+            <button onClick={handleReset}>reset</button>
+            <div className="border-4" onClick={() => {inputRef.current.focus()}}>
+                <input 
+                    className="sr-only" 
+                    onChange={handleChange}
+                    ref={inputRef}
+                    value={input}
+                />
+                <div className="w-[400px] m-0 p-0">{prompt}</div>
+            </div>
+
         </>
     );
 }
