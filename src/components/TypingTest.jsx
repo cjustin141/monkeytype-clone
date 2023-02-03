@@ -25,14 +25,23 @@ export default function TypingTest() {
 
     const wordCount = commonWords.length;
 
-    const [sentence, setsentence] = useState([]);
+    const [sentence, setsentence] = useState('');
     const [input, setInput] = useState('');
+    const [caretX, setCaretX] = useState(0);
 
     const inputRef = useRef(null)
 
     useEffect(() => {
+        setsentence('');
+        setInput('');
+        setCaretX(0);
         generateRandomSentence(10);
     }, []);
+
+    // to handle aysync
+    useEffect(() => {
+        updateCaret();
+    }, [input])
 
     const generateRandomSentence = (length) => {
         let randomSentence = '';
@@ -41,46 +50,69 @@ export default function TypingTest() {
             const randomIdx = Math.floor(Math.random() * wordCount);
             randomSentence += commonWords[randomIdx] + ' ';
         }
-        setsentence(randomSentence.trim().split(" "));
+        setsentence(randomSentence.trim());
     };
 
     const handleReset = () => {
         setsentence('');
         setInput('');
+        setCaretX(0);
         generateRandomSentence(10);
         inputRef.current.focus();
-        renderSentence();
     };
 
-    const handleChange = e => {
-        console.log(e.target.value)
-        setInput(e.target.value)
-    };
+    const handleChange = e => { //maybe not efficient
+        setInput(e.target.value);
+   };
 
-    const renderSentence = sentence.map((word, i) =>
+
+    const renderSentence = sentence.split(' ').map((word, i) =>
         <React.Fragment key={`fragment ${i}`}>
             <span className="inline-block" key={i}>
             {
-                word.split("").map((letter, j) =>     
-                    <div className="inline-block" key={j}>{letter}</div>
-                )
+                word.split('').map((letter, j) =>     
+                    <div id="character" className="inline-block" key={j}>{letter}</div>
+                )      
             }
             </span>
-            <span className="inline-block" key={`nbsp ${i}`}>&nbsp;</span>
+            <span id="character" className="inline-block" key={`nbsp ${i}`}>&nbsp;</span>
+            
         </React.Fragment>
     );    
+
+    const updateCaret = () => {
+        if (sentence != '') {
+            console.log("'"+input+"'")
+            console.log("'"+sentence+"'")
+
+            var characters = document.querySelectorAll("#character")
+            let currentElement = characters[input.length]
+            setCaretX(currentElement.offsetLeft)
+
+            // console.log(input.length)
+            // console.log("current")
+            // console.log(currentElement)
+            // console.log("next")
+            // console.log(nextElement)
+        }
+    };
 
     return (
         <>
             <button onClick={handleReset}>reset</button>
-            <div className="border-4" onClick={() => {inputRef.current.focus()}}>
+            <div id="text-box" className="border-4 h-20 w-45 relative" onClick={() => {inputRef.current.focus()}}>
                 <input 
                     className="sr-only" 
-                    onChange={handleChange}
+                    onChange={(handleChange)}
                     ref={inputRef}
                     value={input}
                 />
                 <div className="w-[400px] m-0 p-0">{renderSentence}</div>
+                <div  
+                    id="caret"
+                    className={`absolute inset-0 w-[1px] h-[20px] bg-black top-[3px]`} 
+                    style={{left: `${caretX}px`}}
+                />
             </div>
         </>
     );
