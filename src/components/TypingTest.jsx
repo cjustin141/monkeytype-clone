@@ -1,7 +1,7 @@
 import React from "react";
 import { useState, useEffect, useRef } from "react";
 
-export default function Typespace() {
+export default function TypingTest() {
     const commonWords =  [ 'the' , 'at' , 'there' , 'some' , 'my'
                     , 'of' , 'be' , 'use' , 'her' , 'than'
                     , 'and' , 'this' , 'an' , 'would' , 'first'
@@ -25,36 +25,50 @@ export default function Typespace() {
 
     const wordCount = commonWords.length;
 
-    const [prompt, setPrompt] = useState('');
+    const [sentence, setsentence] = useState([]);
     const [input, setInput] = useState('');
 
     const inputRef = useRef(null)
 
     useEffect(() => {
-        generateRandomPrompt(10);
+        generateRandomSentence(10);
     }, []);
 
-    const generateRandomPrompt = (length) => {
-        let randomPrompt = '';
+    const generateRandomSentence = (length) => {
+        let randomSentence = '';
     
         for (let i = 0; i < length; i++) {
             const randomIdx = Math.floor(Math.random() * wordCount);
-            randomPrompt += commonWords[randomIdx] + ' ';
+            randomSentence += commonWords[randomIdx] + ' ';
         }
-        setPrompt(randomPrompt.trim());
+        setsentence(randomSentence.trim().split(" "));
     };
 
     const handleReset = () => {
-        setPrompt('');
+        setsentence('');
         setInput('');
-        generateRandomPrompt(10);
-        inputRef.current.focus()
+        generateRandomSentence(10);
+        inputRef.current.focus();
+        renderSentence();
     };
 
     const handleChange = e => {
         console.log(e.target.value)
         setInput(e.target.value)
     };
+
+    const renderSentence = sentence.map((word, i) =>
+        <React.Fragment key={`fragment ${i}`}>
+            <span className="inline-block" key={i}>
+            {
+                word.split("").map((letter, j) =>     
+                    <div className="inline-block" key={j}>{letter}</div>
+                )
+            }
+            </span>
+            <span className="inline-block" key={`nbsp ${i}`}>&nbsp;</span>
+        </React.Fragment>
+    );    
 
     return (
         <>
@@ -66,9 +80,8 @@ export default function Typespace() {
                     ref={inputRef}
                     value={input}
                 />
-                <div className="w-[400px] m-0 p-0">{prompt}</div>
+                <div className="w-[400px] m-0 p-0">{renderSentence}</div>
             </div>
-
         </>
     );
 }
