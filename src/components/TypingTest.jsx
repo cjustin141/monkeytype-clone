@@ -28,20 +28,23 @@ export default function TypingTest() {
     const [sentence, setsentence] = useState('');
     const [input, setInput] = useState('');
     const [caretX, setCaretX] = useState(0);
+    const [characters, setCharacters] = useState([]);
 
     const inputRef = useRef(null)
 
+    // on load
     useEffect(() => {
         setsentence('');
         setInput('');
         setCaretX(0);
+        resetStyling();
         generateRandomSentence(10);
     }, []);
 
     // to handle aysync
-    useEffect(() => {
-        updateCaret();
-    }, [input])
+    useEffect(() => {setCharacters([...(document.querySelectorAll("#character"))])}, [input])
+    useEffect(() => {updateCaret()}, [characters])
+    useEffect(() => {evaluateCharacter()}, [caretX])
 
     const generateRandomSentence = (length) => {
         let randomSentence = '';
@@ -56,6 +59,7 @@ export default function TypingTest() {
     const handleReset = () => {
         setsentence('');
         setInput('');
+        resetStyling();
         setCaretX(0);
         generateRandomSentence(10);
         inputRef.current.focus();
@@ -65,13 +69,60 @@ export default function TypingTest() {
         setInput(e.target.value);
    };
 
+   const resetStyling = () => {
+        characters.map((character) => {
+            character.className = "inline-block text-gray-400";
+        })
+   }
+
+   const evaluateCharacter = () => {  
+        if (sentence != '') {
+            if (input.length > 0 && input.length <= sentence.length) {
+                let prevElement = characters[input.length-1]
+                // let currentElement = characters[input.length]
+                let typedChar = input.slice(-1)
+                let correctChar = prevElement.innerHTML
+
+                if(correctChar == "\u00a0")
+                    console.log("correct is nbsp")
+
+                if (typedChar == correctChar) {
+                    prevElement.classList.add("text-black")
+                    console.log("STATUS: correct")
+                } else if ((typedChar == ' ')  && (correctChar == '&nbsp;')) {
+                    // check if equal nbsp
+                    console.log("STATUS: space")
+                } else {
+                    prevElement.classList.add("text-red-600")
+                    console.log("STATUS: wrong")
+                }
+            }
+        }
+   }
+
+    const updateCaret = () => {
+        if (sentence != '') {
+            if (input.length > 0 && input.length <= sentence.length) {
+                let prevElement = characters[input.length-1]
+                let currentElement = characters[input.length]
+                setCaretX(currentElement.offsetLeft);
+            }
+            // console.log("'"+input+"'");
+            // console.log("'"+sentence+"'");
+        }
+    };
 
     const renderSentence = sentence.split(' ').map((word, i) =>
         <React.Fragment key={`fragment ${i}`}>
             <span className="inline-block" key={i}>
             {
                 word.split('').map((letter, j) =>     
-                    <div id="character" className="inline-block" key={j}>{letter}</div>
+                    <div 
+                        id="character" 
+                        className="inline-block text-gray-400" 
+                        key={j}>
+                        {letter}
+                    </div>
                 )      
             }
             </span>
@@ -79,23 +130,6 @@ export default function TypingTest() {
             
         </React.Fragment>
     );    
-
-    const updateCaret = () => {
-        if (sentence != '') {
-            console.log("'"+input+"'")
-            console.log("'"+sentence+"'")
-
-            var characters = document.querySelectorAll("#character")
-            let currentElement = characters[input.length]
-            setCaretX(currentElement.offsetLeft)
-
-            // console.log(input.length)
-            // console.log("current")
-            // console.log(currentElement)
-            // console.log("next")
-            // console.log(nextElement)
-        }
-    };
 
     return (
         <>
