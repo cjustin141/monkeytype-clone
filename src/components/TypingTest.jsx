@@ -30,7 +30,8 @@ export default function TypingTest() {
     const [caretX, setCaretX] = useState(0);
     const [characters, setCharacters] = useState([]);
 
-    const inputRef = useRef(null)
+    const inputRef = useRef(null);
+    const backspacePressed = useRef(false);
 
     // on load
     useEffect(() => {
@@ -66,7 +67,13 @@ export default function TypingTest() {
     };
 
     const handleChange = e => { //maybe not efficient
+        backspacePressed.current = false;
         setInput(e.target.value);
+        // detect backspace so evaluateCharacter can handle
+        if (e.nativeEvent.inputType == "deleteContentBackward") 
+            backspacePressed.current = true;
+        // console.log(backspacePressed.current)    
+        
    };
 
    const resetStyling = () => {
@@ -76,25 +83,22 @@ export default function TypingTest() {
    }
 
    const evaluateCharacter = () => {  
-        if (sentence != '') {
-            if (input.length > 0 && input.length <= sentence.length) {
-                let prevElement = characters[input.length-1]
-                // let currentElement = characters[input.length]
+        let prevElement = characters[input.length-1];
+        let currElement = characters[input.length];
+
+         if (backspacePressed.current == true) { 
+            currElement.classList = "inline-block text-gray-400"; 
+        } else { 
+            if (prevElement && (input.length <= sentence.length)) {
                 let typedChar = input.slice(-1)
                 let correctChar = prevElement.innerHTML
 
-                if(correctChar == "\u00a0")
-                    console.log("correct is nbsp")
-
                 if (typedChar == correctChar) {
                     prevElement.classList.add("text-black")
-                    console.log("STATUS: correct")
                 } else if ((typedChar == ' ')  && (correctChar == '&nbsp;')) {
-                    // check if equal nbsp
-                    console.log("STATUS: space")
+                    // do nothing
                 } else {
                     prevElement.classList.add("text-red-600")
-                    console.log("STATUS: wrong")
                 }
             }
         }
@@ -102,7 +106,8 @@ export default function TypingTest() {
 
     const updateCaret = () => {
         if (sentence != '') {
-            if (input.length > 0 && input.length <= sentence.length) {
+            // if input.length > 0 && 
+            if (input.length <= sentence.length) {
                 let prevElement = characters[input.length-1]
                 let currentElement = characters[input.length]
                 setCaretX(currentElement.offsetLeft);
