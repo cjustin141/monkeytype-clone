@@ -39,22 +39,40 @@ export default function TypingTest() {
         setInput('');
         setCaretX(0);
         resetStyling();
-        generateRandomSentence(10);
+        generateRandomSentence();
     }, []);
 
     // to handle aysync
-    useEffect(() => {setCharacters([...(document.querySelectorAll("#character"))])}, [input])
+    useEffect(() => {setCharacters([...(document.querySelectorAll("#character-el"))])}, [input])
     useEffect(() => {updateCaret()}, [characters])
     useEffect(() => {evaluateCharacter()}, [caretX])
 
-    const generateRandomSentence = (length) => {
+    // function getTextWidth(text) {
+    //     const canvas = document.createElement('canvas');
+    //     const context = canvas.getContext('2d');
+      
+    //     // context.font = font || getComputedStyle(document.body).font;
+      
+    //     return context.measureText(text).width;
+    //   }
+
+    const generateRandomSentence = () => {
         let randomSentence = '';
-    
-        for (let i = 0; i < length; i++) {
+
+        while (randomSentence.length < 58) {
             const randomIdx = Math.floor(Math.random() * wordCount);
             randomSentence += commonWords[randomIdx] + ' ';
         }
-        setsentence(randomSentence.trim());
+        // console.log("---------------------------------")
+        // console.log("before: " + randomSentence)
+        // console.log(randomSentence.length)
+
+        while (randomSentence.length > 51) {
+            randomSentence = randomSentence.split(" ").reverse().slice(1).reverse().join(" ");
+        }
+        // console.log("after: " + randomSentence)
+        // console.log(randomSentence.length)
+        setsentence(randomSentence)
     };
 
     const handleReset = () => {
@@ -62,7 +80,7 @@ export default function TypingTest() {
         setInput('');
         resetStyling();
         setCaretX(0);
-        generateRandomSentence(10);
+        generateRandomSentence();
         inputRef.current.focus();
     };
 
@@ -123,7 +141,7 @@ export default function TypingTest() {
             {
                 word.split('').map((letter, j) =>     
                     <div 
-                        id="character" 
+                        id="character-el" 
                         className="inline-block text-gray-400" 
                         key={j}>
                         {letter}
@@ -131,7 +149,7 @@ export default function TypingTest() {
                 )      
             }
             </span>
-            <span id="character" className="inline-block" key={`nbsp ${i}`}>&nbsp;</span>
+            <span id="character-el" className="inline-block" key={`nbsp ${i}`}>&nbsp;</span>
             
         </React.Fragment>
     );    
@@ -146,9 +164,9 @@ export default function TypingTest() {
                     ref={inputRef}
                     value={input}
                 />
-                <div className="w-[400px] m-0 p-0">{renderSentence}</div>
+                <div id="sentence-el" className="w-[400px] m-0 p-0">{renderSentence}</div>
                 <div  
-                    id="caret"
+                    id="caret-el"
                     className={`absolute inset-0 w-[1px] h-[20px] bg-black top-[3px]`} 
                     style={{left: `${caretX}px`}}
                 />
