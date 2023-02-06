@@ -119,13 +119,14 @@ export default function TypingTest() {
    };
 
     const updateCaret = () => {
-        if (words != '') {
+        if (words != '') { // eventually replace conditional with isLoaded conditional
             let prevElement = characters[input.length-1];
             let currentElement = characters[input.length];
             setCaretX(currentElement.offsetLeft);
             setCaretY(currentElement.offsetTop);
             // console.log("'"+input+"'");
             // console.log("'"+words+"'");
+            console.log(currentElement.offsetLeft)
         }
     };
 
@@ -144,14 +145,13 @@ export default function TypingTest() {
             }
             </span>
             <span id="character-el" className="inline-block" key={`nbsp ${i}`}>&nbsp;</span>
-            
         </React.Fragment>
     );    
 
     return (
         <>
             <button onClick={handleReset}>reset</button>
-            <div id="text-box" className="border-4 h-20 w-45 relative" onClick={() => {inputRef.current.focus()}}>
+            <div id="text-box" className="border-4 h-20 w-[410px] relative" onClick={() => {inputRef.current.focus()}}>
                 <input 
                     className="sr-only" 
                     onChange={(handleChange)}
@@ -161,7 +161,7 @@ export default function TypingTest() {
                 <div id="words-wrapper" className="w-[400px] m-0 p-0">{renderWords}</div>
                 <div  
                     id="caret-el"
-                    className={`absolute inset-0 w-[1px] h-[20px] bg-black`} 
+                    className={`absolute inset-0 w-[2px] h-[20px] bg-black animate-pulse`} 
                     style={{left: `${caretX}px`, top: `${caretY+3}px`}}
                 />
             </div>

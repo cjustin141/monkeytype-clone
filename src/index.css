@@ -18,4 +18,17 @@
         --tw-text-opacity: 1;
         color: rgb(156 163 175 / var(--tw-text-opacity));
     }
+
+    .caret {
+        position: absolute;
+        top: 0;
+        right: 0;
+        left: 0;
+        bottom: 0;
+        width: 1px;
+        height: 20px;
+        background-color: black;
+    }
+
+      
 }
