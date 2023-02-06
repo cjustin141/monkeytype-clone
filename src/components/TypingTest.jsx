@@ -132,7 +132,10 @@ export default function TypingTest() {
 
     const renderWords = words.split(' ').map((word, i) =>
         <React.Fragment key={`fragment ${i}`}>
-            <span className="inline-block" key={i}>
+            <span 
+                id="word-el" 
+                className="inline-block" 
+                key={i}>
             {
                 word.split('').map((letter, j) =>     
                     <div 
