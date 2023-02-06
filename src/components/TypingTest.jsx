@@ -28,6 +28,7 @@ export default function TypingTest() {
     const [words, setWords] = useState('');
     const [input, setInput] = useState('');
     const [caretX, setCaretX] = useState(0);
+    const [caretY, setCaretY] = useState(0);
     const [characters, setCharacters] = useState([]);
 
     const inputRef = useRef(null);
@@ -44,18 +45,9 @@ export default function TypingTest() {
     }, []);
 
     // to handle aysync
-    useEffect(() => {setCharacters([...(document.querySelectorAll("#character-el"))])}, [input])
-    useEffect(() => {updateCaret()}, [characters])
-    useEffect(() => {evaluateCharacter()}, [caretX])
-
-    // function getTextWidth(text) {
-    //     const canvas = document.createElement('canvas');
-    //     const context = canvas.getContext('2d');
-      
-    //     // context.font = font || getComputedStyle(document.body).font;
-      
-    //     return context.measureText(text).width;
-    //   }
+    useEffect(() => {setCharacters([...(document.querySelectorAll("#character-el"))])}, [input]);
+    useEffect(() => {updateCaret()}, [characters]);
+    useEffect(() => {evaluateCharacter()}, [caretX, caretY]);
 
     const generateWords = (length) => {
         let randomWords = '';
@@ -69,9 +61,9 @@ export default function TypingTest() {
 
     const generateNewWord = () => {
         let randomIdx = Math.floor(Math.random() * wordCount);
-        let randomWord = ' ' + commonWords[randomIdx]
+        let randomWord = commonWords[randomIdx]
 
-        setWords(previousWords => previousWords + randomWord)
+        setWords(previousWords => previousWords + ' ' + randomWord)
     }
 
     const handleReset = () => {
@@ -99,7 +91,7 @@ export default function TypingTest() {
         characters.map((character) => {
             character.className = "inline-block text-gray-400";
         })
-   }
+   };
 
    const evaluateCharacter = () => {  
         let prevElement = characters[input.length-1];
@@ -109,33 +101,29 @@ export default function TypingTest() {
             currElement.classList = "inline-block text-gray-400"; 
         } else { 
             if (prevElement && (input.length <= words.length)) {
-                let typedChar = input.slice(-1)
-                let correctChar = prevElement.innerHTML
+                let typedChar = input.slice(-1);
+                let correctChar = prevElement.innerHTML;
 
                 if (typedChar == correctChar) {
-                    prevElement.classList.add("text-black")
+                    prevElement.classList.add("text-black");
                 } else if ((typedChar == ' ')  && (correctChar == '&nbsp;')) {
                     // do nothing
                 } else {
-                    prevElement.classList.add("text-red-600")
+                    prevElement.classList.add("text-red-600");
                 }
             }
         }
 
-        if (spacePressed.current == true) {
-            console.log("space")
+        if (spacePressed.current == true) 
             generateNewWord();
-        }
-   }
+   };
 
     const updateCaret = () => {
         if (words != '') {
-            // if input.length > 0 && 
-            if (input.length <= words.length) {
-                let prevElement = characters[input.length-1]
-                let currentElement = characters[input.length]
-                setCaretX(currentElement.offsetLeft);
-            }
+            let prevElement = characters[input.length-1];
+            let currentElement = characters[input.length];
+            setCaretX(currentElement.offsetLeft);
+            setCaretY(currentElement.offsetTop);
             // console.log("'"+input+"'");
             // console.log("'"+words+"'");
         }
@@ -173,8 +161,8 @@ export default function TypingTest() {
                 <div id="words-wrapper" className="w-[400px] m-0 p-0">{renderWords}</div>
                 <div  
                     id="caret-el"
-                    className={`absolute inset-0 w-[1px] h-[20px] bg-black top-[3px]`} 
-                    style={{left: `${caretX}px`}}
+                    className={`absolute inset-0 w-[1px] h-[20px] bg-black`} 
+                    style={{left: `${caretX}px`, top: `${caretY+3}px`}}
                 />
             </div>
         </>
