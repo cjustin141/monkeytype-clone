@@ -25,21 +25,22 @@ export default function TypingTest() {
 
     const wordCount = commonWords.length;
 
-    const [sentence, setsentence] = useState('');
+    const [words, setWords] = useState('');
     const [input, setInput] = useState('');
     const [caretX, setCaretX] = useState(0);
     const [characters, setCharacters] = useState([]);
 
     const inputRef = useRef(null);
     const backspacePressed = useRef(false);
+    const spacePressed = useRef(false);
 
     // on load
     useEffect(() => {
-        setsentence('');
+        setWords('');
         setInput('');
         setCaretX(0);
         resetStyling();
-        generateRandomSentence();
+        generateWords(80);
     }, []);
 
     // to handle aysync
@@ -56,41 +57,41 @@ export default function TypingTest() {
     //     return context.measureText(text).width;
     //   }
 
-    const generateRandomSentence = () => {
-        let randomSentence = '';
+    const generateWords = (length) => {
+        let randomWords = '';
 
-        while (randomSentence.length < 58) {
-            const randomIdx = Math.floor(Math.random() * wordCount);
-            randomSentence += commonWords[randomIdx] + ' ';
+        for (let i=0; i<length; i++) {
+            let randomIdx = Math.floor(Math.random() * wordCount);
+            randomWords += commonWords[randomIdx] + ' ';
         }
-        // console.log("---------------------------------")
-        // console.log("before: " + randomSentence)
-        // console.log(randomSentence.length)
-
-        while (randomSentence.length > 51) {
-            randomSentence = randomSentence.split(" ").reverse().slice(1).reverse().join(" ");
-        }
-        // console.log("after: " + randomSentence)
-        // console.log(randomSentence.length)
-        setsentence(randomSentence)
+        setWords(randomWords)
     };
 
+    const generateNewWord = () => {
+        let randomIdx = Math.floor(Math.random() * wordCount);
+        let randomWord = ' ' + commonWords[randomIdx]
+
+        setWords(previousWords => previousWords + randomWord)
+    }
+
     const handleReset = () => {
-        setsentence('');
         setInput('');
         resetStyling();
         setCaretX(0);
-        generateRandomSentence();
+        generateWords(80);
         inputRef.current.focus();
     };
 
     const handleChange = e => { //maybe not efficient
         backspacePressed.current = false;
+        spacePressed.current = false;
         setInput(e.target.value);
         // detect backspace so evaluateCharacter can handle
         if (e.nativeEvent.inputType == "deleteContentBackward") 
             backspacePressed.current = true;
-        // console.log(backspacePressed.current)    
+        if (e.nativeEvent.data == ' ') {
+            spacePressed.current = true;
+        }
         
    };
 
@@ -104,10 +105,10 @@ export default function TypingTest() {
         let prevElement = characters[input.length-1];
         let currElement = characters[input.length];
 
-         if (backspacePressed.current == true) { 
+        if (backspacePressed.current == true) { 
             currElement.classList = "inline-block text-gray-400"; 
         } else { 
-            if (prevElement && (input.length <= sentence.length)) {
+            if (prevElement && (input.length <= words.length)) {
                 let typedChar = input.slice(-1)
                 let correctChar = prevElement.innerHTML
 
@@ -120,22 +121,27 @@ export default function TypingTest() {
                 }
             }
         }
+
+        if (spacePressed.current == true) {
+            console.log("space")
+            generateNewWord();
+        }
    }
 
     const updateCaret = () => {
-        if (sentence != '') {
+        if (words != '') {
             // if input.length > 0 && 
-            if (input.length <= sentence.length) {
+            if (input.length <= words.length) {
                 let prevElement = characters[input.length-1]
                 let currentElement = characters[input.length]
                 setCaretX(currentElement.offsetLeft);
             }
             // console.log("'"+input+"'");
-            // console.log("'"+sentence+"'");
+            // console.log("'"+words+"'");
         }
     };
 
-    const renderSentence = sentence.split(' ').map((word, i) =>
+    const renderWords = words.split(' ').map((word, i) =>
         <React.Fragment key={`fragment ${i}`}>
             <span className="inline-block" key={i}>
             {
@@ -164,7 +170,7 @@ export default function TypingTest() {
                     ref={inputRef}
                     value={input}
                 />
-                <div id="sentence-el" className="w-[400px] m-0 p-0">{renderSentence}</div>
+                <div id="words-wrapper" className="w-[400px] m-0 p-0">{renderWords}</div>
                 <div  
                     id="caret-el"
                     className={`absolute inset-0 w-[1px] h-[20px] bg-black top-[3px]`} 
