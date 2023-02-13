@@ -30,6 +30,7 @@ export default function TypingTest() {
     const [caretX, setCaretX] = useState(0);
     const [caretY, setCaretY] = useState(0);
     const [characters, setCharacters] = useState([]);
+    const [score, setScore] = useState(0);
 
     const inputRef = useRef(null);
     const backspacePressed = useRef(false);
@@ -40,8 +41,8 @@ export default function TypingTest() {
         setWords('');
         setInput('');
         setCaretX(0);
-        resetStyling();
         generateWords(80);
+        resetStyling();
     }, []);
 
     // to handle aysync
@@ -59,11 +60,15 @@ export default function TypingTest() {
         setWords(randomWords)
     };
 
-    const generateNewWord = () => {
-        let randomIdx = Math.floor(Math.random() * wordCount);
-        let randomWord = commonWords[randomIdx]
+    const generateNewWords = (length) => {
+        let randomWords = '';
 
-        setWords(previousWords => previousWords + ' ' + randomWord)
+        for (let i=0; i<length; i++) {
+            let randomIdx = Math.floor(Math.random() * wordCount);
+            randomWords += commonWords[randomIdx] + ' ';
+        }
+
+        setWords(previousWords => previousWords + ' ' + randomWords)
     }
 
     const handleReset = () => {
@@ -72,6 +77,7 @@ export default function TypingTest() {
         setCaretX(0);
         generateWords(80);
         inputRef.current.focus();
+        console.log(characters)
     };
 
     const handleChange = e => { //maybe not efficient
@@ -88,8 +94,8 @@ export default function TypingTest() {
    };
 
    const resetStyling = () => {
-        characters.map((character) => {
-            character.className = "inline-block text-gray-400";
+        characters.forEach((character) => {
+            character.className = "untyped";
         })
    };
 
@@ -98,24 +104,31 @@ export default function TypingTest() {
         let currElement = characters[input.length];
 
         if (backspacePressed.current == true) { 
-            currElement.classList = "inline-block text-gray-400"; 
+            currElement.className = "untyped"; 
         } else { 
             if (prevElement && (input.length <= words.length)) {
                 let typedChar = input.slice(-1);
                 let correctChar = prevElement.innerHTML;
 
                 if (typedChar == correctChar) {
-                    prevElement.classList.add("text-black");
+                    prevElement.className = "correct";
                 } else if ((typedChar == ' ')  && (correctChar == '&nbsp;')) {
                     // do nothing
                 } else {
-                    prevElement.classList.add("text-red-600");
+                    prevElement.className = "wrong";
                 }
             }
         }
 
-        if (spacePressed.current == true) 
-            generateNewWord();
+        if (spacePressed.current == true) {
+            // generateNewWord();
+        }
+
+        if (caretY == 48) {
+            removeTopLine();
+            setCaretY(24);
+            generateNewWords(13);
+        }
    };
 
     const updateCaret = () => {
@@ -124,10 +137,59 @@ export default function TypingTest() {
             let currentElement = characters[input.length];
             setCaretX(currentElement.offsetLeft);
             setCaretY(currentElement.offsetTop);
+
             // console.log("'"+input+"'");
             // console.log("'"+words+"'");
-            console.log(currentElement.offsetLeft)
         }
+    };
+
+    // const removeTopLine = () => {
+    //     let charactersToRemove = [];
+
+    //     characters.forEach(char => {
+    //         if (char.offsetTop == 0) {
+    //             charactersToRemove.push(char);
+    //         }            
+    //     });
+
+    //     charactersToRemove.forEach(char => {
+    //         char.classList.add("sr-only");
+    //     });
+    // };
+
+    const removeTopLine = () => {
+        let topLineCharacters = [];
+        characters.forEach(char => {
+                if (char.offsetTop == 0) {
+                    topLineCharacters.push(char);
+                }
+            }
+        );
+        let topLineWords = [];
+        document.querySelectorAll("#word-el").forEach(word => {
+                if (word.offsetTop == 0) {
+                    topLineWords.push(word);
+                }
+            }
+        );
+
+        let tempInput = input.split(''); //to remove equal amount from input variable
+
+        topLineCharacters.forEach(char => {
+            char.remove();
+            tempInput.shift();
+        });
+        topLineWords.forEach(word => {
+            word.remove();
+        });
+
+        setInput(tempInput.join(''));
+
+        // var filtered = characters.filter(char => {
+
+        // })
+
+        console.log(words)
     };
 
     const renderWords = words.split(' ').map((word, i) =>
@@ -135,19 +197,19 @@ export default function TypingTest() {
             <span 
                 id="word-el" 
                 className="inline-block" 
-                key={i}>
+                key={`word ${i}`}>
             {
                 word.split('').map((letter, j) =>     
                     <div 
                         id="character-el" 
-                        className="inline-block text-gray-400" 
-                        key={j}>
+                        className="untyped" 
+                        key={`character ${j}`}>
                         {letter}
                     </div>
                 )      
             }
             </span>
-            <span id="character-el" className="inline-block" key={`nbsp ${i}`}>&nbsp;</span>
+            <span id="character-el" key={`nbsp ${i}`}>&nbsp;</span>
         </React.Fragment>
     );    
 
