@@ -31,14 +31,14 @@ export default function TypingTest() {
     const [caretX, setCaretX] = useState(0);
     const [caretY, setCaretY] = useState(0);
     const [characters, setCharacters] = useState([]);
-    const [wpm, setWpm] = useState(0);
-    const [seconds, setSeconds] = useState(10);
-    const [view, setView] = useState(false);
+    const [score, setScore] = useState(0);
+    const [seconds, setSeconds] = useState(30);
 
     const inputRef = useRef(null);
     const backspacePressed = useRef(false);
     const spacePressed = useRef(false);
     const timerId = useRef();
+    const gameStart = useRef(false);
 
     // on load
     useEffect(() => {
@@ -50,12 +50,39 @@ export default function TypingTest() {
     }, []);
 
     // to handle aysync
-    useEffect(() => {setCharacters([...(document.querySelectorAll("#character-el"))])}, [input]);
+    useEffect(() => {
+        setCharacters([...(document.querySelectorAll("#character-el"))]);
+        if (gameStart.current == false && input != '') {
+            gameStart.current = true;
+            startTimer();
+        }
+    }, [input]);
     useEffect(() => {updateCaret()}, [characters]);
     useEffect(() => {evaluateCharacter()}, [caretX, caretY]);
 
+    useEffect(() => {checkIfFinished()}, [seconds]);
+
     // custom hook to handle focus
-    const { ref, isComponentVisible } = useComponentVisible(true); 
+    const { ref, isComponentVisible } = useComponentVisible(false); 
+
+    const startTimer = () => {
+        timerId.current = setInterval(() => {
+            setSeconds((prevSeconds) => {
+                const newSeconds = prevSeconds - 1;
+                if (newSeconds <= 0) {
+                    clearInterval(timerId.current)
+                    timerId.current = 0;
+                }
+                return newSeconds;
+            });
+        }, 1000);
+   };
+
+   const checkIfFinished = () => {
+        if (seconds == 0) {
+            console.log("timer finished")
+        }
+   };
 
     const generateWords = (length) => {
         let randomWords = '';
@@ -84,6 +111,8 @@ export default function TypingTest() {
         setCaretX(0);
         generateWords(80);
         inputRef.current.focus();
+        setScore(0);
+        setSeconds(30);
     };
 
     const handleChange = e => { //maybe not efficient
@@ -101,7 +130,7 @@ export default function TypingTest() {
 
    const handleFocus = e => {
         inputRef.current.focus();
-        // setCaretX(0);
+        setCaretX(0);
         // setView(true);
    }
 
@@ -119,19 +148,6 @@ export default function TypingTest() {
         characters.forEach((character) => {
             character.className = "untyped";
         })
-   };
-
-   const startTimer = () => {
-        timerId.current = setInterval(() => {
-            setSeconds((prevSeconds) => {
-                const newSeconds = prevSeconds - 1;
-                if (newSeconds <= 0) {
-                    clearInterval(timerId.current)
-                    timerId.current = 0;
-                }
-                return newSeconds;
-            });
-        }, 1000);
    };
 
    const evaluateCharacter = () => {  
@@ -160,7 +176,27 @@ export default function TypingTest() {
             setCaretY(24);
             generateNewWords(13);
         }
+
+        // to calculate score (replace this eventually with hooks implimentation)
+        let scoreCount = 0;
+        document.querySelectorAll("#word-el").forEach(word => {
+            var children = word.children;
+            let correct = true;
+            for (let i=0; i<children.length; i++) {       
+                if (children[i].className == "wrong" || children[i].className == "untyped") {
+                    correct = false;
+                } 
+            }
+            if (correct == true) {
+                scoreCount++;
+            }
+        })
+        setScore(scoreCount)
    };
+
+    // const calculateWpm = () => {
+
+    // }
 
     const updateCaret = () => {
         if (words != '') { // eventually replace conditional with isLoaded conditional
@@ -231,14 +267,24 @@ export default function TypingTest() {
         </React.Fragment>
     );    
 
+    const calculateScore = () => {
+        console.log("score: " + score)
+        console.log("time: " + seconds)
+        if (seconds == 30) {
+            return 0;
+        } else {
+            return Math.floor(score / ((30-seconds)/60));
+        }
+        
+    }
+
     return (
         <>
             <div className="h-28 text-4xl font-mono items-center">
                 <div>time: {seconds}</div>
-                <div>wpm: {wpm}</div>
+                <div>wpm: {calculateScore()}</div>
             </div>
             <button onClick={handleReset}>reset</button>
-            <button onClick={startTimer}>start</button>
             <div ref={ref} id="text-box" className="border-4 h-[95px] w-[610px] relative" onClick={handleFocus}>
                 <input 
                     className="sr-only" 
