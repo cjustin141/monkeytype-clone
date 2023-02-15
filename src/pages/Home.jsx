@@ -1,5 +1,8 @@
 import React from 'react';
 import TypingTest from '../components/TypingTest';
+import TestConfig from '../components/TestConfig';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 export default function Home() {
     return (

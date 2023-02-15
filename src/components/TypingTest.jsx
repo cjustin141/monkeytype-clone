@@ -26,13 +26,14 @@ export default function TypingTest() {
 
     const wordCount = commonWords.length;
 
-    const [words, setWords] = useState('');
+    const [words, setWords] = useState("");
     const [input, setInput] = useState('');
     const [caretX, setCaretX] = useState(0);
     const [caretY, setCaretY] = useState(0);
     const [characters, setCharacters] = useState([]);
     const [score, setScore] = useState(0);
     const [seconds, setSeconds] = useState();
+    const [gameStarted, setGameStarted] = useState(false);
     const [gameFinished, setGameFinished] = useState(false);
     const [timeSelection, setTimeSelection] = useState(30)
 
@@ -41,7 +42,6 @@ export default function TypingTest() {
     const backspacePressed = useRef(false);
     const spacePressed = useRef(false);
     const timerId = useRef();
-    const gameStart = useRef(false);
 
     // on load
     useEffect(() => {
@@ -56,8 +56,8 @@ export default function TypingTest() {
     // to handle aysync
     useEffect(() => {
         setCharacters([...(document.querySelectorAll("#character-el"))]);
-        if (gameStart.current == false && input != '') {
-            gameStart.current = true;
+        if (gameStarted == false && input != '') {
+            setGameStarted(true);
             startTimer();
         }
     }, [input]);
@@ -85,7 +85,7 @@ export default function TypingTest() {
    const clearTimer = () => {
         clearInterval(timerId.current)
         timerId.current = 0;
-        gameStart.current = false;
+        setGameStarted(false);
    }
 
    const checkIfFinished = () => {
@@ -315,12 +315,19 @@ export default function TypingTest() {
                         onChange={(handleChange)}
                         ref={inputRef}
                         value={input}
+                        disabled={gameFinished}
                     />
                     <div id="words-wrapper" className="w-[600px] m-0 p-0 text-xl absolute">{renderWords}</div>
                     <div  
                         id="caret-el"
                         className={`absolute inset-0 w-[2px] h-[25px] bg-black animate-pulse`} 
-                        style={{left: `${caretX+4}px`, top: `${caretY+3}px`, display: `${isComponentVisible ? "block" : "none"}`}}
+                        // className="caret"
+                        style={{
+                            left: `${caretX+4}px`, 
+                            top: `${caretY+3}px`, 
+                            display: `${isComponentVisible ? "block" : "none"}`,
+                            animation: `${gameStarted ? "" : "blink-animation 1s steps(5, start) infinite" }`
+                        }}
                     />
                 </div>
                 <div 
@@ -330,7 +337,7 @@ export default function TypingTest() {
                     style={{visibility: `${gameFinished ? "visible" : "hidden"}`}}>
                 </div>
             </div>
-            <button onClick={handleReset} className="mt-4 rounded">
+            <button onClick={handleReset} className="mt-4 rounded hover:-scale-110 transition-all delay-75">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
                 </svg>

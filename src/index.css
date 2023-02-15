@@ -25,10 +25,22 @@
         right: 0;
         left: 0;
         bottom: 0;
-        width: 1px;
-        height: 20px;
+        width: 2px;
+        height: 25px;
         background-color: black;
+        animation: blink-animation 1s steps(5, start) infinite;
+        -webkit-animation: blink-animation 1s steps(5, start) infinite;
     }
 
-      
+    @keyframes blink-animation {
+        to {
+            visibility: hidden;
+        }
+    }
+    @-webkit-keyframes blink-animation {
+        to {
+            visibility: hidden;
+        }
+    }
+
 }
