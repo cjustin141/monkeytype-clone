@@ -32,9 +32,12 @@ export default function TypingTest() {
     const [caretY, setCaretY] = useState(0);
     const [characters, setCharacters] = useState([]);
     const [score, setScore] = useState(0);
-    const [seconds, setSeconds] = useState(30);
+    const [seconds, setSeconds] = useState();
+    const [gameFinished, setGameFinished] = useState(false);
+    const [timeSelection, setTimeSelection] = useState(30)
 
     const inputRef = useRef(null);
+    const maskRef = useRef(null);
     const backspacePressed = useRef(false);
     const spacePressed = useRef(false);
     const timerId = useRef();
@@ -47,6 +50,7 @@ export default function TypingTest() {
         setCaretX(0);
         generateWords(80);
         resetStyling();
+        setSeconds(timeSelection);
     }, []);
 
     // to handle aysync
@@ -78,9 +82,16 @@ export default function TypingTest() {
         }, 1000);
    };
 
+   const clearTimer = () => {
+        clearInterval(timerId.current)
+        timerId.current = 0;
+        gameStart.current = false;
+   }
+
    const checkIfFinished = () => {
         if (seconds == 0) {
-            console.log("timer finished")
+            setGameFinished(true);
+            maskRef.current.focus();
         }
    };
 
@@ -110,9 +121,11 @@ export default function TypingTest() {
         resetStyling();
         setCaretX(0);
         generateWords(80);
-        inputRef.current.focus();
         setScore(0);
-        setSeconds(30);
+        setSeconds(timeSelection);
+        clearTimer();
+        setGameFinished(false);
+        inputRef.current.focus();
     };
 
     const handleChange = e => { //maybe not efficient
@@ -246,6 +259,14 @@ export default function TypingTest() {
         });
     };
 
+    const calculateScore = () => {
+        if (seconds == timeSelection) {
+            return 0;
+        } else {
+            return Math.floor(score / ((timeSelection-seconds)/60));
+        }
+    };
+
     const renderWords = words.split(' ').map((word, i) =>
         <React.Fragment key={`fragment ${i}`}>
             <span 
@@ -257,7 +278,7 @@ export default function TypingTest() {
                     <div 
                         id="character-el" 
                         className="untyped" 
-                        key={`characterbe ${j} ${letter}`}>
+                        key={`character ${j} ${letter}`}>
                         {letter}
                     </div>
                 )      
@@ -267,38 +288,49 @@ export default function TypingTest() {
         </React.Fragment>
     );    
 
-    const calculateScore = () => {
-        console.log("score: " + score)
-        console.log("time: " + seconds)
-        if (seconds == 30) {
-            return 0;
-        } else {
-            return Math.floor(score / ((30-seconds)/60));
-        }
-        
-    }
-
     return (
         <>
-            <div className="h-28 text-4xl font-mono items-center">
-                <div>time: {seconds}</div>
-                <div>wpm: {calculateScore()}</div>
+            <div className="flex w-[620px] justify-between mb-6 pl-1 pr-8">
+                <div className="flex flex-col text-4xl">
+                    <span>wpm</span>
+                    <span className="font-bold">{calculateScore()}</span>
+                    <span>time</span>
+                    <span className="font-bold">{seconds}</span> 
+                </div>
+                <div className="flex justify-end items-top w-64 h-auto">
+                    <span>15 30 60 120</span>
+                </div>
             </div>
-            <button onClick={handleReset}>reset</button>
-            <div ref={ref} id="text-box" className="border-4 h-[95px] w-[610px] relative" onClick={handleFocus}>
-                <input 
-                    className="sr-only" 
-                    onChange={(handleChange)}
-                    ref={inputRef}
-                    value={input}
-                />
-                <div id="words-wrapper" className="w-[600px] m-0 p-0 text-xl">{renderWords}</div>
-                <div  
-                    id="caret-el"
-                    className={`absolute inset-0 w-[2px] h-[25px] bg-black animate-pulse`} 
-                    style={{left: `${caretX}px`, top: `${caretY+3}px`, display: `${isComponentVisible ? "block" : "none"}`}}
-                />
+
+       
+            <div className="relative z-0 h-[90px] w-[620px] overflow-hidden flex justify-center align-middle">
+                <div ref={ref} id="text-box" className="h-[90px] w-[610px] left-1" onClick={handleFocus}>
+                    <input 
+                        className="sr-only" 
+                        onChange={(handleChange)}
+                        ref={inputRef}
+                        value={input}
+                    />
+                    <div id="words-wrapper" className="w-[600px] m-0 p-0 text-xl absolute">{renderWords}</div>
+                    <div  
+                        id="caret-el"
+                        className={`absolute inset-0 w-[2px] h-[25px] bg-black animate-pulse`} 
+                        style={{left: `${caretX+4}px`, top: `${caretY+3}px`, display: `${isComponentVisible ? "block" : "none"}`}}
+                    />
+                </div>
+                <div 
+                    id="textbox-mask" 
+                    ref={maskRef}
+                    className="absolute h-[90px] w-[620px] z-10 top-0 backdrop-blur" 
+                    style={{visibility: `${gameFinished ? "visible" : "hidden"}`}}>
+                </div>
             </div>
+            <button onClick={handleReset} className="mt-4 rounded">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                </svg>
+            </button>
+
         </>
     );
 }

@@ -10,13 +10,13 @@
 
     .wrong {
         display: inline-block;
-        color: rgb(160, 43, 43)
+        color: #ef4444;
     }
 
     .untyped {
         display: inline-block;
         --tw-text-opacity: 1;
-        color: rgb(156 163 175 / var(--tw-text-opacity));
+        color: #e2e8f0;
     }
 
     .caret {
