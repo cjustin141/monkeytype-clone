@@ -299,10 +299,10 @@ export default function TypingTest() {
                 </div>
                 <div className="flex justify-end items-top w-64 h-auto">
                     <span className="text-xl text-stone-600">
-                        <button className="ml-2">15</button>
-                        <button className="ml-2">30</button>
-                        <button className="ml-2">60</button>
-                        <button className="ml-2">120</button>
+                        <button className="ml-2 hover:text-stone-200 active:text-stone-600 transition-all">15</button>
+                        <button className="ml-2 hover:text-stone-200 active:text-stone-600 transition-all">30</button>
+                        <button className="ml-2 hover:text-stone-200 active:text-stone-600 transition-all">60</button>
+                        <button className="ml-2 hover:text-stone-200 active:text-stone-600 transition-all">120</button>
                     </span>
                 </div>
             </div>
