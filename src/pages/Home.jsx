@@ -12,7 +12,7 @@ export default function Home() {
                     <TypingTest />
                 </div>
                 <div className="h-[20%]"></div>
-                <h2 className="flex justify-center items-end h-[10%] mt-10 pb-5w-screen">footer</h2>
+                <h2 className="flex justify-center items-end h-[10%] mt-10 pb-5w-screen"></h2>
             </div>
             {/* <h2 className="absolute bottom-2 bg-blue-200 w-screen text-center">footer</h2> */}
             

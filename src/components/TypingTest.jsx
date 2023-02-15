@@ -291,14 +291,19 @@ export default function TypingTest() {
     return (
         <>
             <div className="flex w-[620px] justify-between mb-6 pl-1 pr-8">
-                <div className="flex flex-col text-4xl">
-                    <span>wpm</span>
-                    <span className="font-bold">{calculateScore()}</span>
-                    <span>time</span>
-                    <span className="font-bold">{seconds}</span> 
+                <div className="flex flex-col">
+                    <span className="text-xl text-stone-600">wpm</span>
+                    <span className="font-bold text-4xl">{calculateScore()}</span>
+                    <span className="text-xl text-stone-600">time</span>
+                    <span className="font-bold text-4xl">{seconds}</span> 
                 </div>
                 <div className="flex justify-end items-top w-64 h-auto">
-                    <span>15 30 60 120</span>
+                    <span className="text-xl text-stone-600">
+                        <button className="ml-2">15</button>
+                        <button className="ml-2">30</button>
+                        <button className="ml-2">60</button>
+                        <button className="ml-2">120</button>
+                    </span>
                 </div>
             </div>
 
