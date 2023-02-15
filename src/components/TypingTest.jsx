@@ -31,12 +31,13 @@ export default function TypingTest() {
     const [caretY, setCaretY] = useState(0);
     const [characters, setCharacters] = useState([]);
     const [wpm, setWpm] = useState(0);
-    const [counter, setCounter] = useState(60);
+    const [seconds, setSeconds] = useState(10);
+    const [view, setView] = useState(false);
 
     const inputRef = useRef(null);
     const backspacePressed = useRef(false);
     const spacePressed = useRef(false);
-    const renders = useRef(0);
+    const timerId = useRef();
 
     // on load
     useEffect(() => {
@@ -94,6 +95,12 @@ export default function TypingTest() {
         
    };
 
+   const handleFocus = e => {
+        inputRef.current.focus();
+        setCaretX(0);
+        setView(true);
+   }
+
    /*
    Use on keydown to handle keypresses
 
@@ -111,7 +118,16 @@ export default function TypingTest() {
    };
 
    const startTimer = () => {
-        
+        timerId.current = setInterval(() => {
+            setSeconds((prevSeconds) => {
+                const newSeconds = prevSeconds - 1;
+                if (newSeconds <= 0) {
+                    clearInterval(timerId.current)
+                    timerId.current = 0;
+                }
+                return newSeconds;
+            });
+        }, 1000);
    };
 
    const evaluateCharacter = () => {  
@@ -214,12 +230,12 @@ export default function TypingTest() {
     return (
         <>
             <div className="h-28 text-4xl font-mono items-center">
-                <div>time: {counter}</div>
+                <div>time: {seconds}</div>
                 <div>wpm: {wpm}</div>
             </div>
             <button onClick={handleReset}>reset</button>
             <button onClick={startTimer}>start</button>
-            <div id="text-box" className="border-4 h-[95px] w-[610px] relative" onClick={() => {inputRef.current.focus()}}>
+            <div id="text-box" className="border-4 h-[95px] w-[610px] relative" onClick={handleFocus}>
                 <input 
                     className="sr-only" 
                     onChange={(handleChange)}
@@ -230,7 +246,7 @@ export default function TypingTest() {
                 <div  
                     id="caret-el"
                     className={`absolute inset-0 w-[2px] h-[25px] bg-black animate-pulse`} 
-                    style={{left: `${caretX}px`, top: `${caretY+3}px`}}
+                    style={{left: `${caretX}px`, top: `${caretY+3}px`, display: `${view ? "block" : "none"}`}}
                 />
             </div>
         </>
