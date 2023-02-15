@@ -1,5 +1,6 @@
 import React from "react";
 import { useState, useEffect, useRef } from "react";
+import useComponentVisible from "../hooks/useComponentVisible"
 
 export default function TypingTest() {
     const commonWords =  [ 'the' , 'at' , 'there' , 'some' , 'my'
@@ -53,6 +54,9 @@ export default function TypingTest() {
     useEffect(() => {updateCaret()}, [characters]);
     useEffect(() => {evaluateCharacter()}, [caretX, caretY]);
 
+    // custom hook to handle focus
+    const { ref, isComponentVisible } = useComponentVisible(true); 
+
     const generateWords = (length) => {
         let randomWords = '';
 
@@ -97,8 +101,8 @@ export default function TypingTest() {
 
    const handleFocus = e => {
         inputRef.current.focus();
-        setCaretX(0);
-        setView(true);
+        // setCaretX(0);
+        // setView(true);
    }
 
    /*
@@ -235,7 +239,7 @@ export default function TypingTest() {
             </div>
             <button onClick={handleReset}>reset</button>
             <button onClick={startTimer}>start</button>
-            <div id="text-box" className="border-4 h-[95px] w-[610px] relative" onClick={handleFocus}>
+            <div ref={ref} id="text-box" className="border-4 h-[95px] w-[610px] relative" onClick={handleFocus}>
                 <input 
                     className="sr-only" 
                     onChange={(handleChange)}
@@ -246,7 +250,7 @@ export default function TypingTest() {
                 <div  
                     id="caret-el"
                     className={`absolute inset-0 w-[2px] h-[25px] bg-black animate-pulse`} 
-                    style={{left: `${caretX}px`, top: `${caretY+3}px`, display: `${view ? "block" : "none"}`}}
+                    style={{left: `${caretX}px`, top: `${caretY+3}px`, display: `${isComponentVisible ? "block" : "none"}`}}
                 />
             </div>
         </>
